@@ -18,6 +18,17 @@
 <link rel="stylesheet" href="/src/styles/index.css">
 
 <script>
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  var navigationEntry = performance.getEntriesByType('navigation')[0];
+  if (navigationEntry && navigationEntry.type === 'reload' && !location.hash.startsWith('#book')){
+    history.replaceState(null, '', location.pathname + location.search + '#top');
+    window.scrollTo(0, 0);
+    window.addEventListener('pageshow', function(){
+      window.scrollTo(0, 0);
+    }, { once:true });
+  }
+</script>
+<script>
   /* Arm the entrance before first paint; the failsafe guarantees content can never be stranded invisible. */
   document.documentElement.classList.add('intro');
   setTimeout(function(){document.documentElement.classList.remove('intro');},4000);
