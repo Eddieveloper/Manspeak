@@ -12,6 +12,7 @@ import { startRing, stopRing } from './ring.js';
 const state = { home: true, inView: true, finalVisible: false, pageVisible: !document.hidden };
 let clipper = null;   // { start, stop, resize } once the 3D chunk has loaded
 let restoreFinalPortal = null;
+let activateFinalIntro = null;
 
 function sync(){
   const on = state.home && (state.inView || state.finalVisible) && state.pageVisible;
@@ -21,6 +22,7 @@ function sync(){
 export function setHomeActive(on){
   state.home = on;
   if (!on && restoreFinalPortal) restoreFinalPortal();
+  if (on && activateFinalIntro) activateFinalIntro();
   sync();
 }
 
@@ -40,6 +42,7 @@ export function initHeroMotion(){
   const finalMount = document.getElementById('finalClipperMount');
   const clipperStage = document.getElementById('clipperStage');
   if (final && finalMount && clipperStage){
+    const finalIsIntro = final.classList.contains('final-intro');
     let sequenceIndex = 0;
     const makeAnimatedWords = text =>{
       const fragment = document.createDocumentFragment();
@@ -135,12 +138,27 @@ export function initHeroMotion(){
       }
     };
     restoreFinalPortal = leaveFinal;
+    if (finalIsIntro){
+      activateFinalIntro = ()=>{
+        finalMount.appendChild(clipperStage);
+        clipperStage.classList.add('final-mode');
+        clipperStage.style.setProperty('--final-progress', '1');
+        final.style.setProperty('--final-reveal', 'circle(150vmax at 50% 50%)');
+        if (clipper) clipper.resize();
+      };
+      activateFinalIntro();
+      if (!finalTitleAnimated){
+        finalTitleAnimated = true;
+        requestAnimationFrame(()=> final.classList.add('final-sequence-visible'));
+      }
+    }
     const updateFinal = ()=>{
       finalFrame = 0;
       const scrollY = window.scrollY;
       const scrollingDown = scrollY > lastScrollY;
       lastScrollY = scrollY;
       if (!state.home){ leaveFinal(); sync(); return; }
+      if (finalIsIntro){ return; }
       if (!finalSpacer && final.parentNode !== document.body){
         const bounds = final.getBoundingClientRect();
         if (bounds.top > window.innerHeight || bounds.bottom <= 0){ state.finalVisible = false; return; }
