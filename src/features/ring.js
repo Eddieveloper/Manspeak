@@ -8,52 +8,12 @@ import { peso } from '../config.js';
 import { CUTS } from '../data/cuts.js';
 import { portrait } from '../lib/portrait.js';
 
-export const SHOTS = [
-  { v:'label',   text:'ANY CUT<br>ONE PRICE',    cut:0 },
-  { v:'poster',  cut:1 },
-  { v:'promo',   cut:0 },                          // flat-price barber-pole card
-  { v:'serif',   text:'Fresh<br>Fridays',         cut:2 },
-  { v:'label',   text:'K-STYLE<br>WEEK',           cut:2 },
-  { v:'poster',  cut:3 },
-  { v:'book',    cut:4 },                          // "Book in 30 seconds"
-  { v:'serif',   text:'Photo<br>day fit',          cut:7 },
-  { v:'label',   text:'SKIP<br>THE LINE',          cut:5 },
-  { v:'poster',  cut:6 }
-];
-function creative(d){
-  const c = CUTS[d.cut % CUTS.length];
-  // data: URIs, so no lazy-loading (it left blanks on cards hidden in 3D)
-  const img = '<img alt="" src="' + portrait(c,'tall') + '">';
-  if (d.v === 'label'){
-    return '<div class="cv-ph">' + img + '<span class="cv-scrim"></span></div>' +
-           '<div class="cv-label"><b class="dot"></b><span>' + d.text + '</span></div>';
-  }
-  if (d.v === 'poster'){
-    return '<div class="cv-ph">' + img + '</div>' +
-           '<div class="cv-poster"><span class="cv-poster-t">' + c.name + '</span><span class="cv-poster-p">' + peso() + '</span></div>';
-  }
-  if (d.v === 'promo'){
-    return '<div class="cv-promo">' +
-             '<div class="cv-pole"></div>' +
-             '<div class="cv-promo-inner">' +
-               '<span class="cv-promo-kick">ANY CUT</span>' +
-               '<span class="cv-promo-price">' + peso() + '</span>' +
-               '<span class="cv-promo-sub">one price, no add-ons</span>' +
-             '</div>' +
-           '</div>';
-  }
-  if (d.v === 'serif'){
-    return '<div class="cv-ph">' + img + '<span class="cv-scrim"></span></div>' +
-           '<div class="cv-serif">' + d.text + '</div>';
-  }
-  if (d.v === 'book'){
-    return '<div class="cv-book">' +
-             '<span class="cv-book-kick">BOOK IN</span>' +
-             '<span class="cv-book-big">30 sec</span>' +
-             '<div class="cv-book-chips"><span>4:30</span><span>5:00</span><span>5:30</span></div>' +
-           '</div>';
-  }
-  return '<div class="cv-ph">' + img + '</div>';
+export const SHOTS = CUTS.map((_, cut)=>({ cut }));
+function creative(shot){
+  const cut = CUTS[shot.cut];
+  const image = portrait(cut, 'front');
+  return '<div class="cv-ph"><img alt="" src="' + image + '"><span class="cv-scrim"></span></div>' +
+         '<div class="cv-photo-label"><span>' + cut.name + '</span><b>' + peso() + '</b></div>';
 }
 
 const RING = { R:891, N:37, step:360/37, cull:54, fadeStart:40, speed:1.9, phase:-2, last:0, rafId:0, running:false, cards:[] };

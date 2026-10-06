@@ -1,16 +1,37 @@
 /* ============================================================
-   THE GLASS CLIPPER — full-hero canvas, model centred (as in the
+   THE BLACK CLIPPER — full-hero canvas, model centred (as in the
    reference stage). Slow continuous spin + smooth mouse-follow.
    prefers-reduced-motion: renders still.
    ============================================================ */
 import * as THREE from 'three';
 import { buildClipperGeometry } from './geometry.js';
-import { glassVertexShader, glassFragmentShader, bgVertexShader, bgFragmentShader } from './shaders.js';
 
 const REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* the refracted backdrop: palette amber fading into --void */
-const BG_STOPS = [[0, '#6b4615'], [0.45, '#33261a'], [1, '#1e1d1d']];
+function createMetalEnvironment(){
+  const envCanvas = document.createElement('canvas');
+  envCanvas.width = 512;
+  envCanvas.height = 256;
+  const ctx = envCanvas.getContext('2d');
+  const base = ctx.createLinearGradient(0, 0, 0, envCanvas.height);
+  base.addColorStop(0, '#08090b');
+  base.addColorStop(0.48, '#4b4e52');
+  base.addColorStop(1, '#111214');
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, envCanvas.width, envCanvas.height);
+  [[0.18, 0.055, 0.88], [0.48, 0.12, 0.48], [0.82, 0.045, 0.78]].forEach(([x, width, opacity])=>{
+    const highlight = ctx.createLinearGradient((x - width) * envCanvas.width, 0, (x + width) * envCanvas.width, 0);
+    highlight.addColorStop(0, 'rgba(220,226,235,0)');
+    highlight.addColorStop(0.5, 'rgba(220,226,235,' + opacity + ')');
+    highlight.addColorStop(1, 'rgba(220,226,235,0)');
+    ctx.fillStyle = highlight;
+    ctx.fillRect((x - width) * envCanvas.width, 0, width * 2 * envCanvas.width, envCanvas.height);
+  });
+  const environment = new THREE.CanvasTexture(envCanvas);
+  environment.mapping = THREE.EquirectangularReflectionMapping;
+  environment.colorSpace = THREE.SRGBColorSpace;
+  return environment;
+}
 
 export function mountClipper(canvas, stage){
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
@@ -20,43 +41,31 @@ export function mountClipper(canvas, stage){
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
   camera.position.set(0, 0, 10);
   const scene = new THREE.Scene();
+  scene.environment = createMetalEnvironment();
+  scene.add(new THREE.AmbientLight(0xd9dce2, 1.1));
+  const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+  keyLight.position.set(-3, 4, 5);
+  scene.add(keyLight);
+  const rimLight = new THREE.DirectionalLight(0xffffff, 1.4);
+  rimLight.position.set(3, 1, -4);
+  scene.add(rimLight);
   const pivot = new THREE.Group();     // fitting + scroll tilt
   const spinner = new THREE.Group();   // drag + idle drift
   pivot.add(spinner); scene.add(pivot);
-  const mesh = new THREE.Mesh(buildClipperGeometry());
+  const material = new THREE.MeshPhysicalMaterial({
+    color: 0x111317,
+    metalness: 0.82,
+    roughness: 0.28,
+    envMapIntensity: 1.35,
+    clearcoat: 0.65,
+    clearcoatRoughness: 0.24
+  });
+  const mesh = new THREE.Mesh(buildClipperGeometry(), material);
+  mesh.geometry.computeBoundingSphere();
   spinner.add(mesh);
   spinner.rotation.set(-0.25, 0.45, 0.15);
 
-  /* full-screen quad that paints the gradient into the refraction targets */
-  const bgScene = new THREE.Scene();
-  const bgCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-  const bgCanvas = document.createElement('canvas');
-  const bgTexture = new THREE.CanvasTexture(bgCanvas);
-  bgTexture.colorSpace = THREE.SRGBColorSpace;
-  bgTexture.minFilter = bgTexture.magFilter = THREE.LinearFilter;
-  bgTexture.generateMipmaps = false;
-  const bgQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({
-    uniforms: { uTex: { value: bgTexture } },
-    vertexShader: bgVertexShader, fragmentShader: bgFragmentShader,
-    depthTest: false, depthWrite: false
-  }));
-  bgQuad.frustumCulled = false;
-  bgScene.add(bgQuad);
-
-  const uniforms = {
-    uTexture: { value: null }, uResolution: { value: new THREE.Vector2() }, uBackside: { value: 0 },
-    uIorR: { value: 1.15 }, uIorY: { value: 1.16 }, uIorG: { value: 1.18 },
-    uIorC: { value: 1.22 }, uIorB: { value: 1.22 }, uIorP: { value: 1.22 },
-    uRefractPower: { value: 0.30 }, uChromatic: { value: 0.5 }, uSaturation: { value: 1.08 },
-    uShininess: { value: 90 }, uDiffuseness: { value: 0.02 }, uFresnelPower: { value: 5.0 },
-    uLight: { value: new THREE.Vector3(-1, 1, 1) }
-  };
-  const frontMat = new THREE.ShaderMaterial({ vertexShader: glassVertexShader, fragmentShader: glassFragmentShader, uniforms: THREE.UniformsUtils.clone(uniforms), side: THREE.FrontSide });
-  const backMat  = new THREE.ShaderMaterial({ vertexShader: glassVertexShader, fragmentShader: glassFragmentShader, uniforms: THREE.UniformsUtils.clone(uniforms), side: THREE.BackSide });
-  backMat.uniforms.uBackside.value = 1;
-  backMat.uniforms.uRefractPower.value = 0.22;
-
-  let rtBack = null, rtFront = null, lastW = 0, lastH = 0, lastFinalMode = false;
+  let lastW = 0, lastH = 0, lastFinalMode = false;
   let baseScale = 1, scaleFactor = 1;
   const finalProgress = ()=> Math.max(0, Math.min(1, Number(stage.style.getPropertyValue('--final-progress')) || 0));
 
@@ -70,32 +79,15 @@ export function mountClipper(canvas, stage){
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
-    const W = Math.floor(w*dpr), H = Math.floor(h*dpr);
-
-    if (rtBack) rtBack.dispose();
-    if (rtFront) rtFront.dispose();
-    rtBack  = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
-    rtFront = new THREE.WebGLRenderTarget(W, H, { type: THREE.HalfFloatType });
-    backMat.uniforms.uTexture.value = rtBack.texture;
-    frontMat.uniforms.uTexture.value = rtFront.texture;
-    frontMat.uniforms.uResolution.value.set(W, H);
-    backMat.uniforms.uResolution.value.set(W, H);
 
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-
-    bgCanvas.width = W; bgCanvas.height = H;
-    const ctx = bgCanvas.getContext('2d');
-    const grd = ctx.createRadialGradient(W/2, H*0.45, 0, W/2, H*0.45, Math.max(W, H));
-    BG_STOPS.forEach(([o, c])=> grd.addColorStop(o, c));
-    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
-    bgTexture.needsUpdate = true;
 
     // reference sizing; centred horizontally, ~48.8% down (45% on phones)
     const visH = 2 * Math.tan(camera.fov * Math.PI / 360) * camera.position.z;
     const phone = w < 768 || w / h < 1;
     pivot.position.set(0, (0.5 - (phone ? 0.45 : 0.488)) * visH, 0);
-    const px = Math.min(h * 0.44, w * (phone ? 0.45 : 0.29));
+    const px = Math.min(h * 0.5, w * (phone ? 0.56 : 0.29));
     baseScale = (px / h) * visH * 1.5;
     if (REDUCED) scaleFactor = finalMode ? 1.2 : 1;
     pivot.scale.setScalar(baseScale * scaleFactor);
@@ -103,13 +95,7 @@ export function mountClipper(canvas, stage){
   }
 
   function render(){
-    renderer.setRenderTarget(rtBack);  renderer.clear(); renderer.render(bgScene, bgCamera);
-    renderer.setRenderTarget(rtFront); renderer.clear(); renderer.render(bgScene, bgCamera);
-    renderer.autoClear = false;
-    mesh.material = backMat;  renderer.render(scene, camera);   // back faces into rtFront
-    renderer.setRenderTarget(null); renderer.clear();
-    mesh.material = frontMat; renderer.render(scene, camera);   // front faces to screen
-    renderer.autoClear = true;
+    renderer.render(scene, camera);
   }
 
   /* ---------------- mouse follow ---------------- */
