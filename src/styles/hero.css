@@ -23,6 +23,29 @@ a.chip:hover{border-color:rgba(255,255,255,.25)}
 /* ---- full-width carousel and its single browser-style toolbar ---- */
 .showcase{position:relative;z-index:1;height:var(--show-h,520px);margin-top:var(--show-mt,-40px)}
 .hero .showcase{isolation:isolate}
+.carousel-signature{position:absolute;left:50%;top:50vh;z-index:8;
+  opacity:0;transform:translate(-50%,-50%);pointer-events:none;white-space:nowrap}
+.carousel-signature.is-visible{animation:carouselSignatureRise .8s cubic-bezier(.2,.8,.25,1) both}
+.carousel-signature-name{position:relative;display:block;font-family:Poppins,Inter,system-ui,sans-serif;font-size:clamp(72px,11vw,156px);
+  font-weight:800;font-style:normal;letter-spacing:.065em;line-height:1;
+  color:rgba(255,231,189,.3);-webkit-text-stroke:1px rgba(255,218,163,.34);
+  filter:drop-shadow(0 4px 16px rgba(0,0,0,.92)) drop-shadow(0 0 22px rgba(255,189,89,.22))}
+.carousel-signature-name::after{content:attr(data-text);position:absolute;inset:0;color:transparent;
+  background:linear-gradient(112deg,#ffe9c2 0%,#d99036 18%,#fff5e1 34%,#ffbd59 51%,#fff0d2 69%,#c9802c 84%,#ffe4b6 100%);
+  background-size:220% 100%;background-position:0 50%;background-clip:text;-webkit-background-clip:text;
+  -webkit-text-stroke:0 transparent;clip-path:inset(100% 0 0)}
+.carousel-signature.is-visible .carousel-signature-name::after{
+  animation:carouselNameFill 4.8s cubic-bezier(.2,.75,.25,1) .25s forwards,carouselNameSheen 5s ease-in-out 5.1s infinite alternate}
+@keyframes carouselSignatureRise{from{opacity:0;transform:translate(-50%,calc(-50% + 12px))}to{opacity:1;transform:translate(-50%,-50%)}}
+@keyframes carouselNameFill{to{clip-path:inset(0)}}
+@keyframes carouselNameSheen{to{background-position:100% 50%}}
+@media (max-width:700px){.carousel-signature-name{font-size:clamp(60px,14vw,88px);letter-spacing:.04em}}
+@media (prefers-reduced-motion:reduce){
+  .carousel-signature{opacity:1;transform:translate(-50%,-50%)}
+  .carousel-signature.is-visible{animation:none}
+  .carousel-signature-name::after{clip-path:inset(0);background-position:50%}
+  .carousel-signature.is-visible .carousel-signature-name::after{animation:none}
+}
 .ring-stage{position:absolute;left:50%;top:0;width:1172px;height:657px;transform-origin:50% 0;
   transform:translateX(-50%) translateY(var(--ring-y,-400px)) scale(var(--k,1));pointer-events:none}
 .ring{position:absolute;left:0;top:0;width:1172px;height:657px;z-index:5;

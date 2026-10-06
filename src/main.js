@@ -3,7 +3,7 @@
    ============================================================ */
 import { bindContact, injectJsonLd, fillPrices, fillAboutPortrait } from './features/content.js';
 import { stars } from './features/stars.js';
-import { renderFilters, renderLookbook, applyFilter } from './features/lookbook.js';
+import { renderLookbook } from './features/lookbook.js';
 import { buildRing, placeCards } from './features/ring.js';
 import { updateOpenChip } from './features/status.js';
 import { sizeHero, initHeroMotion, initHeroResize, loadClipper } from './features/hero.js';
@@ -30,9 +30,7 @@ function boot(){
   buildRing();
   placeCards();
 
-  renderFilters();
   renderLookbook();
-  applyFilter();
 
   // availability drives the open chip and the booking view
   onAvailabilityChange(updateOpenChip);

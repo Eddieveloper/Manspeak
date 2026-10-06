@@ -63,8 +63,8 @@ export function fillPrices(){
   document.querySelectorAll('[data-price]').forEach(el=> el.textContent = peso());
 }
 
-/** Owner portrait in About (illustrative until a real photo is supplied). */
+/** Owner portrait in the About section. */
 export function fillAboutPortrait(){
   const bp = document.getElementById('barberPic');
-  if (bp) bp.src = portrait(CUTS[7], 'front');
+  if (bp) bp.src = '/photos/Owner.jpg';
 }

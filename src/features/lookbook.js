@@ -3,28 +3,9 @@
    Each card links to #cut/<slug>, which the router opens as a dialog.
    ============================================================ */
 import { peso } from '../config.js';
-import { CATS, CUTS } from '../data/cuts.js';
+import { CUTS } from '../data/cuts.js';
 import { portrait } from '../lib/portrait.js';
 
-let activeFilter = 'all';
-export function renderFilters(){
-  const wrap = document.getElementById('filters');
-  if (!wrap) return;
-  wrap.innerHTML = '';
-  Object.keys(CATS).forEach(k=>{
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'filter';
-    b.setAttribute('aria-pressed', k===activeFilter ? 'true' : 'false');
-    b.textContent = CATS[k];
-    b.addEventListener('click', ()=>{
-      activeFilter = k;
-      wrap.querySelectorAll('button').forEach(x=> x.setAttribute('aria-pressed', x===b ? 'true':'false'));
-      applyFilter();
-    });
-    wrap.appendChild(b);
-  });
-}
 export function renderLookbook(){
   const ul = document.getElementById('lookbook');
   if (!ul) return;
@@ -46,18 +27,4 @@ export function renderLookbook(){
       '</a>';
     ul.appendChild(li);
   });
-}
-export function applyFilter(){
-  const ul = document.getElementById('lookbook');
-  if (!ul) return;
-  const items = ul.querySelectorAll('.look');
-  let shown = 0;
-  items.forEach(li=>{
-    const cats = (li.dataset.cats||'').split(' ');
-    const on = activeFilter==='all' || cats.indexOf(activeFilter)>-1;
-    li.hidden = !on;
-    if (on) shown++;
-  });
-  const status = document.getElementById('filterStatus');
-  if (status) status.textContent = shown + ' cuts shown';
 }

@@ -27,6 +27,20 @@ export function setHomeActive(on){
 }
 
 export function initHeroMotion(){
+  const carouselSignature = document.getElementById('carouselSignature');
+  if (carouselSignature){
+    const signatureSheet = document.getElementById('sheet');
+    const syncSignature = ()=>{
+      const bounds = carouselSignature.getBoundingClientRect();
+      const sheetTop = signatureSheet ? signatureSheet.getBoundingClientRect().top : Infinity;
+      const inViewport = bounds.bottom > 0 && bounds.top < window.innerHeight;
+      const uncovered = sheetTop > bounds.top + bounds.height * 0.5;
+      carouselSignature.classList.toggle('is-visible', inViewport && uncovered);
+    };
+    window.addEventListener('scroll', syncSignature, { passive: true });
+    window.addEventListener('resize', syncSignature);
+    syncSignature();
+  }
   // the hero is pinned, so it is "in view" until the sheet has covered it
   const sheet = document.getElementById('sheet');
   if (sheet && 'IntersectionObserver' in window){

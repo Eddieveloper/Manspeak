@@ -20,10 +20,6 @@
 .pf-ic svg{width:18px;height:18px;stroke:var(--amber)}
 
 /* ---- lookbook (menu / results) ---- */
-.filters{display:flex;flex-wrap:wrap;gap:8px;margin:-12px 0 28px}
-.filter{height:40px;padding:0 16px;border-radius:12px;border:1px solid var(--line);font-size:14px;color:rgba(255,255,255,.82);transition:background .2s,border-color .2s,color .2s}
-.filter:hover{border-color:rgba(255,255,255,.26)}
-.filter[aria-pressed="true"]{background:var(--amber);border-color:var(--amber);color:var(--void);font-weight:600}
 .lookbook{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .look{position:relative;display:block;width:100%;aspect-ratio:3/4;border-radius:20px;overflow:hidden;text-align:left;background:#161515;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}
