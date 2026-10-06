@@ -55,7 +55,8 @@ a.chip:hover{border-color:rgba(255,255,255,.25)}
 .card.broken .pic, .card.broken img{display:none}
 /* Ring-card creatives — each card is 130x300, illustrations flow beneath overlays */
 .cv-ph{position:absolute;left:0;right:0;top:0;bottom:0;overflow:hidden;background:linear-gradient(155deg,#3a3532,#1e1d1d 60%,#2a2320)}
-.cv-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cv-ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s ease}
+.card.photo-ready .cv-ph img{opacity:1}
 .cv-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,18,17,0) 40%,rgba(20,18,17,.85) 75%,rgba(20,18,17,.95))}
 .cv-label{position:absolute;left:12px;right:12px;bottom:16px;color:#fff;font-family:Poppins,sans-serif;font-weight:800;font-size:14px;line-height:1.1;letter-spacing:.02em;text-transform:uppercase;z-index:3;display:flex;align-items:flex-end;gap:6px}
 .cv-label .dot{background:var(--amber);flex:0 0 5px;margin-bottom:5px}

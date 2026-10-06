@@ -20,8 +20,8 @@ html.intro .fab{opacity:0;scale:.88}
   html.intro .h1 .ln,html.intro .sub,html.intro .where,html.intro .ctas,html.intro .ring,html.intro .mock,html.intro .fab,html.intro .clipper-stage{
     opacity:1;translate:none;scale:none;clip-path:none}
   .navmenu,.burger span{transition:none!important}
+  .card .cv-ph img{transition:none}
   .fab::after{animation:none}
   .cutdlg[open]{animation:none}
   .look img,.btn{transition:none}
 }
-
