@@ -1,0 +1,27 @@
+/* =====================================================================
+   ENTRANCE TIMELINE — resting states. Uses the individual translate /
+   scale / clip-path properties, NOT transform: transform is already owned
+   by the ring maths and the dialog, so these compose instead of colliding.
+   ===================================================================== */
+html.intro .nav{opacity:0;translate:0 -9px}
+html.intro .brand,html.intro .links a,html.intro .nav .btn,html.intro .burger{opacity:0;translate:0 6px}
+html.intro .badge{opacity:0;translate:0 11px;scale:.985}
+html.intro .h1 .ln{opacity:0;translate:0 15px;clip-path:inset(100% 0 -30% 0)}
+html.intro .sub,html.intro .where{opacity:0;translate:0 10px}
+html.intro .ctas{opacity:0;translate:0 13px;scale:.985}
+html.intro .ring{opacity:0;translate:0 18px;scale:.99}
+html.intro .mock{opacity:0;translate:0 26px}
+html.intro .clipper-stage{opacity:0;scale:.94}
+html.intro .fab{opacity:0;scale:.88}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  html.intro .nav,html.intro .brand,html.intro .links a,html.intro .nav .btn,html.intro .burger,html.intro .badge,
+  html.intro .h1 .ln,html.intro .sub,html.intro .where,html.intro .ctas,html.intro .ring,html.intro .mock,html.intro .fab,html.intro .clipper-stage{
+    opacity:1;translate:none;scale:none;clip-path:none}
+  .navmenu,.burger span{transition:none!important}
+  .fab::after{animation:none}
+  .cutdlg[open]{animation:none}
+  .look img,.btn{transition:none}
+}
+
