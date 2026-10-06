@@ -56,13 +56,17 @@ export function mountClipper(canvas, stage){
   backMat.uniforms.uBackside.value = 1;
   backMat.uniforms.uRefractPower.value = 0.22;
 
-  let rtBack = null, rtFront = null, lastW = 0, lastH = 0;
+  let rtBack = null, rtFront = null, lastW = 0, lastH = 0, lastFinalMode = false;
+  let baseScale = 1, scaleFactor = 1;
+  const finalProgress = ()=> Math.max(0, Math.min(1, Number(stage.style.getPropertyValue('--final-progress')) || 0));
 
   function resize(){
     const w = Math.max(1, Math.round(stage.clientWidth));
     const h = Math.max(1, Math.round(stage.clientHeight));
-    if (w === lastW && h === lastH) return;
+    const finalMode = stage.classList.contains('final-mode');
+    if (w === lastW && h === lastH && finalMode === lastFinalMode) return;
     lastW = w; lastH = h;
+    lastFinalMode = finalMode;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     renderer.setPixelRatio(dpr);
     renderer.setSize(w, h, false);
@@ -92,7 +96,9 @@ export function mountClipper(canvas, stage){
     const phone = w < 768 || w / h < 1;
     pivot.position.set(0, (0.5 - (phone ? 0.45 : 0.488)) * visH, 0);
     const px = Math.min(h * 0.44, w * (phone ? 0.45 : 0.29));
-    pivot.scale.setScalar((px / h) * visH * 1.5);
+    baseScale = (px / h) * visH * 1.5;
+    if (REDUCED) scaleFactor = finalMode ? 1.2 : 1;
+    pivot.scale.setScalar(baseScale * scaleFactor);
     render();
   }
 
@@ -119,9 +125,12 @@ export function mountClipper(canvas, stage){
     raf = requestAnimationFrame(tick);
     const dt = Math.min((now - lastT) / 1000, 0.1);
     lastT = now;
+    const targetScale = 1 + 0.2 * finalProgress();
+    scaleFactor = THREE.MathUtils.lerp(scaleFactor, targetScale, 3.2 * dt);
+    pivot.scale.setScalar(baseScale * scaleFactor);
     spinner.rotation.y += 0.15 * dt;                                     // slow spin
-    mesh.rotation.y = THREE.MathUtils.lerp(mesh.rotation.y, mx * 1.0, 5 * dt);  // follow the cursor
-    mesh.rotation.x = THREE.MathUtils.lerp(mesh.rotation.x, my * 0.5, 5 * dt);
+    mesh.rotation.y = THREE.MathUtils.lerp(mesh.rotation.y, mx * 0.24, 3.2 * dt);
+    mesh.rotation.x = THREE.MathUtils.lerp(mesh.rotation.x, my * 0.14, 3.2 * dt);
     render();
   }
 

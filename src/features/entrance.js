@@ -57,7 +57,6 @@ export function runEntrance(){
   play(q('.ctas'),  { opacity:0, translate: Y(13), scale: '.985' }, 620, 830, EXPO);
 
   play(q('.ring'),    { opacity:0, translate: Y(18), scale: '.99' }, 950, 700, EXPO);
-  play(q('.mock'),    { opacity:0, translate: Y(26) }, 900, 900, EXPO);
   play(q('.clipper-stage'), { opacity:0, scale: '.94' }, 1200, 800, EXPO);
   play(q('.fab'),     { opacity:0, scale: '.88' }, 500, 1260, EXPO);
 
@@ -67,4 +66,3 @@ export function runEntrance(){
     setTimeout(settle, 2500);
   }
 }
-

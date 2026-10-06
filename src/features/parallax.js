@@ -33,7 +33,7 @@ export function initParallax(){
     set(L.cta, -cur * r.cta, fade);
     set(L.badge, 0, Math.max(0, 1 - cur / 100));
     set(L.ring, -cur * 0.15);
-    set(L.clip, -target * 0.15);          // clipper uses raw scroll, as in the reference
+    if (L.clip[0] && hero.contains(L.clip[0])) set(L.clip, -target * 0.15); // parallax only while the clipper is in the hero
     raf = cur === target ? 0 : requestAnimationFrame(frame);
   }
   const kick = ()=>{ if (!raf) raf = requestAnimationFrame(frame); };

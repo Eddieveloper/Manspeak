@@ -13,9 +13,14 @@ export function updateOpenChip(){
   if (txt) txt.textContent = nextOpeningStr();
   if (next){
     const f = firstOpenSlot();
-    if (!f){ next.textContent = 'later this week'; return; }
-    const df = new Intl.DateTimeFormat('en-US',{timeZone:CONFIG.timeZone, weekday:'long'});
-    const label = f.day.key === dayKey(0).key ? 'today' : f.day.key === dayKey(1).key ? 'tomorrow' : df.format(f.day.date);
-    next.textContent = label + ', ' + fmtTime(f.slot);
+    let label = 'later this week';
+    if (f){
+      const df = new Intl.DateTimeFormat('en-US',{timeZone:CONFIG.timeZone, weekday:'long'});
+      const day = f.day.key === dayKey(0).key ? 'today' : f.day.key === dayKey(1).key ? 'tomorrow' : df.format(f.day.date);
+      label = day + ', ' + fmtTime(f.slot);
+    }
+    next.textContent = label;
+    const finalDetails = document.querySelector('.final-wrap > p');
+    if (finalDetails) finalDetails.setAttribute('aria-label', 'Next open chair: ' + label);
   }
 }

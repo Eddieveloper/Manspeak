@@ -87,11 +87,6 @@
   <div class="stars" id="stB" aria-hidden="true"></div>
 
   <div class="hero-copy">
-    <div class="badge">
-      <i aria-hidden="true"><svg viewBox="5 1 14 22" preserveAspectRatio="none"><path d="M13.9 1.6 5.5 13.6a.7.7 0 0 0 .6 1.1h4.2l-1 7.7a.7.7 0 0 0 1.25.55l8.3-12.1a.7.7 0 0 0-.6-1.1h-4.2l1-7.7a.7.7 0 0 0-1.25-.55Z" fill="rgba(110,64,14,.78)" stroke="rgba(255,226,176,.75)" stroke-width="1.6" stroke-linejoin="round"/></svg></i>
-      <b>Online booking is now open</b>
-    </div>
-
     <h1 class="h1" id="h1"><span class="ln" id="h1a">Main character</span> <span class="ln" id="h1b">haircuts</span></h1>
 
     <p class="sub"><b>Fades, crops, two-blocks and mullets</b> for students, <span data-price>₱150</span> for any cut. Pick a slot between classes and skip the line.</p>
@@ -103,47 +98,20 @@
       <span class="chip"><span class="live" id="liveDot" aria-hidden="true"></span><span id="openNow">Open daily, 10:00 AM to 8:00 PM</span></span>
     </div>
 
-    <div class="ctas">
-      <a class="btn cta2" href="#book"><span>Book now</span></a>
-      <a class="ghost" href="#cuts">See the cuts</a>
-    </div>
   </div>
 
-  <!-- 3D ring of cuts (decorative), the glass clipper floating over it, and the live mini-booker in front -->
+  <!-- One full-width haircut carousel. -->
   <div class="showcase" id="showcase">
     <div class="ring-stage" aria-hidden="true"><div class="ring" id="ring"></div></div>
-
-   
   </div>
 </section>
 
 <!-- ============================ SOCIAL PROOF ============================ -->
 <div class="sheet" id="sheet">
-  
-   <!-- <div class="mock" aria-label="Quick booking">
-      <div class="bar" aria-hidden="true">
-        <div class="dots"><i style="background:#ee5c62"></i><i style="background:#f6b719"></i><i style="background:#12c02f"></i></div>
-        <div class="omni"><svg class="ico" style="stroke:#fff;stroke-width:2.4"><use href="#i-search"/></svg><span>MansPeak Barbershop · Book a chair</span></div>
-        <div class="tools">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 16V4m0 0L8 8m4-4 4 4"/><path d="M4 15v5h16v-5"/></svg>
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
-          <svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5Z" fill="#fff" opacity=".95"/><path d="M3 13l9 5 9-5" fill="none" stroke="#fff" stroke-width="2" opacity=".55"/></svg>
-        </div>
-      </div>
-      <div class="mpage">
-        <div class="mb-main">
-          <div class="mb-row"><span class="mb-t">Pick a day</span><span class="mb-m" id="mbMonth"></span></div>
-          <div class="mb-days" id="mbDays" role="group" aria-label="Day"></div>
-          <div class="mb-row"><span class="mb-t">Open times</span><span class="mb-m" id="mbCount"></span></div>
-          <div class="mb-times" id="mbTimes"></div>
-        </div>
-        <div class="mb-side">
-          <img class="mb-pic" id="mbPic" alt="">
-          <div class="mb-cut"><b id="mbCut">Low Taper Fade</b><span><span data-price>₱150</span>, pay at the shop</span></div>
-          <a class="mb-go" id="mbGo" href="#book">Continue</a>
-        </div>
-      </div>
-    </div> -->
+<div class="sheet-chrome" aria-hidden="true">
+  <div class="sheet-chrome-dots"><i></i><i></i><i></i></div>
+  <div class="sheet-address">manspeak.barbershop</div>
+</div>
 <!-- EDIT: replace the rating with your real Google / Facebook rating -->
 <section class="proof" aria-label="Why students book here">
   <div class="wrap proof-in">
@@ -239,11 +207,12 @@
 <!-- ============================ FINAL CTA ============================ -->
 <section class="final" aria-labelledby="finalTitle">
   <div class="stars" id="stC" aria-hidden="true"></div>
-  <div class="wrap">
+  <div class="final-art" id="finalClipperMount" aria-hidden="true"></div>
+  <div class="wrap final-wrap">
     <h2 id="finalTitle">Your next cut is 30 seconds away</h2>
     <p>Next open chair: <b id="nextSlot">today</b></p>
     <div class="ctas">
-      <a class="btn cta2" href="#book" id="finalBook"><span>Book now</span></a>
+      <a class="btn cta2 final-book" href="#book" id="finalBook"><span>Book now!</span></a>
       <a class="ghost" data-link="sms" href="sms:+639123456789"><svg class="ico" style="width:18px;height:18px"><use href="#i-chat"/></svg>Text us instead</a>
     </div>
   </div>

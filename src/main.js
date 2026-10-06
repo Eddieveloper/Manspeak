@@ -5,7 +5,6 @@ import { bindContact, injectJsonLd, fillPrices, fillAboutPortrait } from './feat
 import { stars } from './features/stars.js';
 import { renderFilters, renderLookbook, applyFilter } from './features/lookbook.js';
 import { buildRing, placeCards } from './features/ring.js';
-import { initMiniBooker, renderMiniBooker } from './features/mini-booker.js';
 import { updateOpenChip } from './features/status.js';
 import { sizeHero, initHeroMotion, initHeroResize, loadClipper } from './features/hero.js';
 import { initDialog } from './features/dialog.js';
@@ -29,15 +28,14 @@ function boot(){
   sizeHero();
   initHeroResize();
   buildRing();
-  initMiniBooker();
   placeCards();
 
   renderFilters();
   renderLookbook();
   applyFilter();
 
-  // availability drives the open chip, the mini-booker and the booking view
-  onAvailabilityChange(()=>{ updateOpenChip(); renderMiniBooker(); });
+  // availability drives the open chip and the booking view
+  onAvailabilityChange(updateOpenChip);
   updateOpenChip();
   refreshAvailability();
   setInterval(updateOpenChip, 60*1000);
