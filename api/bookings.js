@@ -16,6 +16,7 @@ import { CONFIG } from '../src/config.js';
 import { CUTS } from '../src/data/cuts.js';
 import { bookingWindow, openSlots, allSlots, fmtTime, fmtDateLong } from '../src/lib/schedule.js';
 import { normalizePhonePH, validEmail, isDayKey } from '../src/lib/validate.js';
+import { sendMail, esc } from './_lib/mail.js';
 
 const UNSURE = { slug: '__unsure', name: 'To decide in the chair' };
 const REF_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no 0/O/1/I
@@ -69,10 +70,10 @@ export default async function handler(req, res){
   // retry once on the (very unlikely) chance of a duplicate ref
   for (let attempt = 0; attempt < 2; attempt++){
     const ref = makeRef();
-    const { error } = await db.from('bookings').insert({ ...row, ref });
+    const { data, error } = await db.from('bookings').insert({ ...row, ref }).select('token').single();
     if (!error){
-      const smsSent = await sendConfirmation({ ...value, ref });
-      return send(res, 201, { ref, price: CONFIG.price, smsSent });
+      await notify({ ...value, ref, token: data.token });
+      return send(res, 201, { ref, price: CONFIG.price, smsSent: false });
     }
     if (error.code === '23505' && /one_per_slot/.test(error.message + (error.details || ''))){
       return send(res, 409, { error: 'That slot was just taken.' });
@@ -91,22 +92,43 @@ export default async function handler(req, res){
    then uncomment. Returns true only if the provider accepted it.
    Never let an SMS failure fail the booking: it's already saved.
    ------------------------------------------------------------ */
-async function sendConfirmation(b){
-  if (!process.env.SEMAPHORE_KEY) return false;
-  const first = b.name.split(' ')[0] || 'friend';
-  const message = 'Hi ' + first + '! Your ' + CONFIG.business + ' booking is confirmed for ' +
-    fmtDateLong(b.date) + ' at ' + fmtTime(b.time) + '. Cut: ' + b.cut.name + '. Ref: ' + b.ref + '. Reply here if plans change.';
-  try {
-    const form = new URLSearchParams({
-      apikey: process.env.SEMAPHORE_KEY,
-      number: b.phone.e164,
-      message,
-      sendername: process.env.SEMAPHORE_SENDER || ''
-    });
-    const r = await fetch('https://api.semaphore.co/api/v4/messages', { method: 'POST', body: form });
-    return r.ok;
-  } catch(e){
-    console.error('sms failed', e);
-    return false;
-  }
+// async function sendConfirmation(b){
+//   if (!process.env.SEMAPHORE_KEY) return false;
+//   const first = b.name.split(' ')[0] || 'friend';
+//   const message = 'Hi ' + first + '! Your ' + CONFIG.business + ' booking is confirmed for ' +
+//     fmtDateLong(b.date) + ' at ' + fmtTime(b.time) + '. Cut: ' + b.cut.name + '. Ref: ' + b.ref + '. Reply here if plans change.';
+//   try {
+//     const form = new URLSearchParams({
+//       apikey: process.env.SEMAPHORE_KEY,
+//       number: b.phone.e164,
+//       message,
+//       sendername: process.env.SEMAPHORE_SENDER || ''
+//     });
+//     const r = await fetch('https://api.semaphore.co/api/v4/messages', { method: 'POST', body: form });
+//     return r.ok;
+//   } catch(e){
+//     console.error('sms failed', e);
+//     return false;
+//   }
+// }
+async function notify(b){
+  const when = fmtDateLong(b.date) + ' at ' + fmtTime(b.time);
+  const base = process.env.SITE_URL + '/api/respond?token=' + b.token;
+  const btn = c => `background:${c};color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none`;
+
+  await sendMail({
+    to: process.env.OWNER_EMAIL,
+    replyTo: b.email,
+    subject: `New booking ${b.ref}: ${b.name}, ${when}`,
+    html: `<h3>New booking request (${b.ref})</h3>
+      <p><b>${esc(b.name)}</b><br>${esc(b.phone.e164)} · ${esc(b.email)}<br>
+      ${esc(b.cut.name)} · ₱${CONFIG.price}<br><b>${when}</b><br>${esc(b.notes)}</p>
+      <p><a href="${base}&action=accept" style="${btn('#16a34a')}">✅ Accept</a>
+      &nbsp;<a href="${base}&action=decline" style="${btn('#dc2626')}">❌ Decline</a></p>`
+  });
+  await sendMail({
+    to: b.email,
+    subject: `Booking request received (${b.ref})`,
+    html: `<p>Hi ${esc(b.name.split(' ')[0])}, we got your request for <b>${esc(b.cut.name)}</b> on <b>${when}</b>. We'll confirm shortly.</p>`
+  });
 }
