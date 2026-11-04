@@ -21,7 +21,7 @@ export default async function handler(req, res){
   const { data, error } = await db
     .from('bookings')
     .select('booking_date, start_min')
-    .eq('status', 'confirmed')
+    .in('status', ['pending', 'confirmed'])
     .gte('booking_date', from)
     .lte('booking_date', to);
 
